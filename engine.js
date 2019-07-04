@@ -70,6 +70,24 @@ module.exports = function(options) {
       // collection library if you prefer.
       cz.prompt([
         {
+          type: 'input',
+          name: 'issues',
+          message: 'Jira Issue ID(s) (required):\n',
+          default: options.currentBranch,
+          validate: function(input) {
+            if (!input) {
+              return 'Must specify issue IDs, otherwise, just use a normal commit message';
+            } else {
+              return true;
+            }
+          }
+        },
+        // {
+        //   type: 'input',
+        //   name: 'time',
+        //   message: 'Time spent (i.e. 3h 15m) (optional):\n'
+        // },
+        {
           type: 'list',
           name: 'type',
           message: "Select the type of change that you're committing:",
@@ -199,7 +217,7 @@ module.exports = function(options) {
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
 
         // Hard limit this line in the validate
-        var head = answers.type + scope + ': ' + answers.subject;
+        var head = answers.type + scope + ': ' + '[' + answers.issues + ']' +answers.subject;
 
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
@@ -213,7 +231,12 @@ module.exports = function(options) {
 
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
-        commit(filter([head, body, breaking, issues]).join('\n\n'));
+        commit(filter([
+          head,
+          body,
+          breaking,
+          issues
+        ]).join('\n\n'));
       });
     }
   };
